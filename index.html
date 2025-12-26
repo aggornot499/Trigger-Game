@@ -20,18 +20,24 @@
     #counter {
         font-size: 2rem;
         margin-bottom: 10px;
-        color: #ffff;
+        color: #ffff
     }
 
     #reloadStatus {
         font-size: 1.2rem;
         margin-bottom: 20px;
-        color: #ffff;
+        color: white;
     }
     
     #gameContainer {
-        margin-right: 4%;
-    }
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    gap: 20px; 
+    margin-top: 20px;
+}
+
 
     .clickBox {
         width: 100px;
@@ -67,11 +73,23 @@
 <div id="clickBox2" class="clickBox">
     <img src="sprites/marker2.png">
 </div>
+    
+<!-- Third gun -->
+    <div id="clickBox3" class="clickBox">
+    <img src="sprites/marker3.png">
+</div>
+    
+<!-- Fourth gun -->
+    <div id="clickBox4" class="clickBox">
+    <img src="sprites/marker4.png">
+</div>
     </div>
 <!-- Audio files -->
 <audio id="reloadSound" src="sounds/reload.wav" preload="auto"></audio>
 <audio id="clickSound1" src="sounds/click.wav" preload="auto"></audio>
 <audio id="clickSound2" src="sounds/click2.wav" preload="auto"></audio>
+<audio id="clickSound3" src="sounds/click3.wav" preload="auto"></audio>
+<audio id="clickSound4" src="sounds/click4.wav" preload="auto"></audio>
 
 <script>
     let clicks = 200;
@@ -82,10 +100,14 @@
 
     const box1 = document.getElementById("clickBox");
     const box2 = document.getElementById("clickBox2");
+    const box3 = document.getElementById("clickBox3");
+    const box4 = document.getElementById("clickBox4");
 
     const reloadSound = document.getElementById("reloadSound");
     const clickSound1 = document.getElementById("clickSound1");
     const clickSound2 = document.getElementById("clickSound2");
+    const clickSound3 = document.getElementById("clickSound3");
+    const clickSound4 = document.getElementById("clickSound4");
 
     let reloadReady = true;
     const COOLDOWN_TIME = 5000; // 5 seconds
@@ -131,6 +153,14 @@ function handleShot(sound) {
 
     // Box 2 uses clickSound2
     box2.addEventListener("click", () => handleShot(clickSound2));
+    
+        // Box 3 uses clickSound3
+    box3.addEventListener("click", () => handleShot(clickSound3));
+    
+        // Box 4 uses clickSound4
+    box4.addEventListener("click", () => handleShot(clickSound4));
+
+
 
     // Reload function with cooldown + sound
     document.addEventListener("keydown", (event) => {
@@ -153,6 +183,7 @@ function handleShot(sound) {
 
 </body>
 </html>
+
 
 
 
