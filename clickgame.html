@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<!-- EAT SHIT STOP LOOKING AT MY MARKUP, YOU FUCKER -->
+<!-- Embed Jacquard 12 from Google Fonts -->
+
+
+<style>
+
+
+    #counter {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    #reloadStatus {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: white;
+    }
+    
+    #gameContainer {
+        margin-right: 4%
+    }
+
+    .clickBox {
+        width: 100px;
+        height: 100px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: transform 0.1s ease;
+        margin: 10px;
+    }
+
+    .clickBox:active {
+        transform: scale(0.95);
+        
+    }
+</style>
+
+</head>
+
+
+<body>
+
+<div id="counter">Click to Shoot</div>
+<div id="reloadStatus">Press R to reload</div>
+    
+<div id="gameContainer">
+<!-- First gun -->
+<div id="clickBox" class="clickBox">
+    <img src="sprites/marker.png">
+</div>
+
+<!-- Second gun -->
+<div id="clickBox2" class="clickBox">
+    <img src="sprites/marker2.png">
+</div>
+    </div>
+<!-- Audio files -->
+<audio id="reloadSound" src="sounds/reload.wav" preload="auto"></audio>
+<audio id="clickSound1" src="sounds/click.wav" preload="auto"></audio>
+<audio id="clickSound2" src="sounds/click2.wav" preload="auto"></audio>
+
+<script>
+    let clicks = 240;
+    const MAX_CLICKS = 240;
+
+    const counter = document.getElementById("counter");
+    const reloadStatus = document.getElementById("reloadStatus");
+
+    const box1 = document.getElementById("clickBox");
+    const box2 = document.getElementById("clickBox2");
+
+    const reloadSound = document.getElementById("reloadSound");
+    const clickSound1 = document.getElementById("clickSound1");
+    const clickSound2 = document.getElementById("clickSound2");
+
+    let reloadReady = true;
+    const COOLDOWN_TIME = 5000; // 5 seconds
+
+    function updateCounter() {
+        counter.textContent = "Shots Left: " + clicks;
+    }
+
+    function startCooldown() {
+        reloadReady = false;
+        reloadStatus.textContent = "Reload Cooling Down…";
+
+        setTimeout(() => {
+            reloadReady = true;
+            reloadStatus.textContent = "Reload Ready";
+        }, COOLDOWN_TIME);
+    }
+
+    function handleShot(sound) {
+        clicks--;
+        if (clicks < 0) clicks = 0;
+
+        sound.currentTime = 0;
+        sound.play();
+
+        updateCounter();
+    }
+
+    // Box 1 uses clickSound1
+    box1.addEventListener("click", () => handleShot(clickSound1));
+
+    // Box 2 uses clickSound2
+    box2.addEventListener("click", () => handleShot(clickSound2));
+
+    // Reload function with cooldown + sound
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "r" || event.key === "R") {
+            if (!reloadReady) return;
+
+            const reloadAmount = Math.floor(Math.random() * (140 - 80 + 1)) + 80;
+            clicks += reloadAmount;
+
+            if (clicks > MAX_CLICKS) clicks = MAX_CLICKS;
+
+            reloadSound.currentTime = 0;
+            reloadSound.play();
+
+            updateCounter();
+            startCooldown();
+        }
+    });
+</script>
+
+</body>
+</html>
+
+
