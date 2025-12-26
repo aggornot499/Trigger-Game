@@ -4,15 +4,23 @@
 <meta charset="UTF-8">
 <title></title>
 <!-- EAT SHIT STOP LOOKING AT MY MARKUP, YOU FUCKER -->
-<!-- Embed Jacquard 12 from Google Fonts -->
+
 
 
 <style>
 
+    body {
+        background-color: #000;
+        font-family: lucida sans;
+        text-align: center;
+        
 
+    }
+    
     #counter {
         font-size: 2rem;
         margin-bottom: 10px;
+        color: #ffff
     }
 
     #reloadStatus {
@@ -36,6 +44,7 @@
 
     .clickBox:active {
         transform: scale(0.95);
+        margin-right: 10px;
         
     }
 </style>
@@ -65,8 +74,8 @@
 <audio id="clickSound2" src="sounds/click2.wav" preload="auto"></audio>
 
 <script>
-    let clicks = 240;
-    const MAX_CLICKS = 240;
+    let clicks = 200;
+    const MAX_CLICKS = 200;
 
     const counter = document.getElementById("counter");
     const reloadStatus = document.getElementById("reloadStatus");
@@ -104,7 +113,19 @@
 
         updateCounter();
     }
+function handleShot(sound) {
+    if (clicks <= 0) return; // Prevent sound + prevent negative shots
 
+    clicks--;
+    if (clicks < 0) clicks = 0;
+
+    sound.currentTime = 0;
+    sound.play();
+
+    updateCounter();
+}
+
+    
     // Box 1 uses clickSound1
     box1.addEventListener("click", () => handleShot(clickSound1));
 
@@ -132,5 +153,7 @@
 
 </body>
 </html>
+
+
 
 
