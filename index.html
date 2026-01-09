@@ -2,54 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title></title>
 
 <style>
     body {
         background-color: #000;
-        font-family: lucida sans;
+        font-family: lucida sans, sans-serif;
         text-align: center;
+        margin: 0;
+        padding: 0;
+        user-select: none;
     }
-    
+
     #counter {
-        font-size: 2rem;
-        margin-bottom: 10px;
-        color: #ffff
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        margin-top: 15px;
+        color: #fff;
     }
 
     #reloadStatus {
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-        color: white;
+        font-size: clamp(1rem, 2.5vw, 1.4rem);
+        margin-bottom: 10px;
+        color: #fff;
     }
 
     #cpsCounter {
-        font-size: 1.5rem;
-        color: white;
-        margin-top: 10px;
+        font-size: clamp(1.2rem, 3vw, 1.6rem);
+        color: #fff;
+        margin-bottom: 15px;
     }
-    
+
+    /* Responsive grid */
     #gameContainer {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 20px;
-        margin-top: 20px;
+        width: min(90%, 600px);
+        margin: auto;
     }
 
     .clickBox {
-        width: 100px;
-        height: 100px;
+        width: 100%;
+        aspect-ratio: 1 / 1;
         cursor: pointer;
-        border-radius: 8px;
+        border-radius: 12px;
         transition: transform 0.1s ease;
-        margin: 10px;
+        background-color: #222;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .clickBox img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+        pointer-events: none;
     }
 
     .clickBox:active {
+        transform: scale(0.92);
+    }
+
+    /* Reload button (mobile + desktop) */
+    #reloadBtn {
+        margin-top: 20px;
+        padding: 15px 30px;
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+        border: none;
+        border-radius: 10px;
+        background-color: #444;
+        color: white;
+        cursor: pointer;
+    }
+
+    #reloadBtn:active {
         transform: scale(0.95);
-        margin-right: 10px;
     }
 </style>
 
@@ -58,28 +85,17 @@
 <body>
 
 <div id="counter">Click to Shoot</div>
-<div id="reloadStatus">Press R to reload</div>
+<div id="reloadStatus">Reload Ready</div>
 <div id="cpsCounter">BPS: 0</div>
 
 <div id="gameContainer">
-
-<div id="clickBox" class="clickBox">
-    <img src="sprites/marker.png">
+    <div id="clickBox" class="clickBox"><img src="sprites/marker.png"></div>
+    <div id="clickBox2" class="clickBox"><img src="sprites/marker2.png"></div>
+    <div id="clickBox3" class="clickBox"><img src="sprites/marker3.png"></div>
+    <div id="clickBox4" class="clickBox"><img src="sprites/marker4.png"></div>
 </div>
 
-<div id="clickBox2" class="clickBox">
-    <img src="sprites/marker2.png">
-</div>
-
-<div id="clickBox3" class="clickBox">
-    <img src="sprites/marker3.png">
-</div>
-
-<div id="clickBox4" class="clickBox">
-    <img src="sprites/marker4.png">
-</div>
-
-</div>
+<button id="reloadBtn">Reload</button>
 
 <audio id="reloadSound" src="sounds/reload.wav" preload="auto"></audio>
 <audio id="clickSound1" src="sounds/click.wav" preload="auto"></audio>
@@ -99,6 +115,8 @@
     const box3 = document.getElementById("clickBox3");
     const box4 = document.getElementById("clickBox4");
 
+    const reloadBtn = document.getElementById("reloadBtn");
+
     const reloadSound = document.getElementById("reloadSound");
     const clickSound1 = document.getElementById("clickSound1");
     const clickSound2 = document.getElementById("clickSound2");
@@ -115,16 +133,18 @@
     function startCooldown() {
         reloadReady = false;
         reloadStatus.textContent = "Reload Cooling Down…";
+        reloadBtn.disabled = true;
+        reloadBtn.style.opacity = 0.5;
 
         setTimeout(() => {
             reloadReady = true;
             reloadStatus.textContent = "Reload Ready";
+            reloadBtn.disabled = false;
+            reloadBtn.style.opacity = 1;
         }, COOLDOWN_TIME);
     }
 
-    // -----------------------------
-    // BPS SYSTEM (formerly CPS)
-    // -----------------------------
+    // BPS SYSTEM
     let clicksThisSecond = 0;
     const cpsDisplay = document.getElementById("cpsCounter");
 
@@ -136,43 +156,46 @@
         cpsDisplay.textContent = "BPS: " + clicksThisSecond;
         clicksThisSecond = 0;
     }, 1000);
-    // -----------------------------
 
     function handleShot(sound) {
         if (clicks <= 0) return;
 
         clicks--;
-        if (clicks < 0) clicks = 0;
-
         sound.currentTime = 0;
         sound.play();
 
-        registerCPS(); // BPS tracking
-
+        registerCPS();
         updateCounter();
     }
 
-    box1.addEventListener("click", () => handleShot(clickSound1));
-    box2.addEventListener("click", () => handleShot(clickSound2));
-    box3.addEventListener("click", () => handleShot(clickSound3));
-    box4.addEventListener("click", () => handleShot(clickSound4));
+    // Pointer events = works on mouse + touch
+    [box1, box2, box3, box4].forEach((box, i) => {
+        const sounds = [clickSound1, clickSound2, clickSound3, clickSound4];
+        box.addEventListener("pointerdown", () => handleShot(sounds[i]));
+    });
 
+    // Reload button
+    reloadBtn.addEventListener("click", () => {
+        if (!reloadReady) return;
+
+        const reloadAmount = Math.floor(Math.random() * (140 - 80 + 1)) + 80;
+        clicks = Math.min(MAX_CLICKS, clicks + reloadAmount);
+
+        reloadSound.currentTime = 0;
+        reloadSound.play();
+
+        updateCounter();
+        startCooldown();
+    });
+
+    // Desktop keyboard reload
     document.addEventListener("keydown", (event) => {
-        if (event.key === "r" || event.key === "R") {
-            if (!reloadReady) return;
-
-            const reloadAmount = Math.floor(Math.random() * (140 - 80 + 1)) + 80;
-            clicks += reloadAmount;
-
-            if (clicks > MAX_CLICKS) clicks = MAX_CLICKS;
-
-            reloadSound.currentTime = 0;
-            reloadSound.play();
-
-            updateCounter();
-            startCooldown();
+        if (event.key.toLowerCase() === "r") {
+            reloadBtn.click();
         }
     });
+
+    updateCounter();
 </script>
 
 </body>
